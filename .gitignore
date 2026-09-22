@@ -1,0 +1,7 @@
+# Arduino / ESP32 build output
+build/
+*.bin
+*.elf
+*.map
+.DS_Store
+.vscode/
