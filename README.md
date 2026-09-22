@@ -1,5 +1,9 @@
 # robodog
 
+
+3D model link:
+https://a360.co/4yQa9Da
+
 Arduino sketches for the robodog project, running on an ESP32 (ESP32-D0WD) dev board mounted on a GVS expansion board.
 
 ## Sketches
