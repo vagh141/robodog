@@ -5,3 +5,6 @@ build/
 *.map
 .DS_Store
 .vscode/
+
+# PlatformIO
+.pio/
