@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="no">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Robothund V1</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root{
+    --bg:#EFF2F1;--surface:#FFFFFF;--surface-2:#E4E9E7;
+    --ink:#171C1D;--ink-2:#3B4547;--muted:#5F6D6E;
+    --line:#D2D9D7;--line-strong:#A8B4B2;
+    --accent:#9A6800;--accent-soft:#F4E7C7;
+    --steel:#2E5A76;--steel-soft:#DDE7EE;
+    --ok:#25684B;--ok-soft:#DCEDE4;
+    --crit:#9E2F24;--crit-soft:#F6E3E0;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#121616;--surface:#1A1F20;--surface-2:#232A2A;
+      --ink:#E9EDEC;--ink-2:#C3CBCA;--muted:#8E9B9A;
+      --line:#2C3434;--line-strong:#485252;
+      --accent:#E0A93B;--accent-soft:#3A2E14;
+      --steel:#8FBBD6;--steel-soft:#1D2A33;
+      --ok:#6FC49A;--ok-soft:#182B22;
+      --crit:#E28A7E;--crit-soft:#2E1B18;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#121616;--surface:#1A1F20;--surface-2:#232A2A;
+    --ink:#E9EDEC;--ink-2:#C3CBCA;--muted:#8E9B9A;
+    --line:#2C3434;--line-strong:#485252;
+    --accent:#E0A93B;--accent-soft:#3A2E14;
+    --steel:#8FBBD6;--steel-soft:#1D2A33;
+    --ok:#6FC49A;--ok-soft:#182B22;
+    --crit:#E28A7E;--crit-soft:#2E1B18;
+  }
+  *{box-sizing:border-box}
+  body{background:var(--bg);color:var(--ink);font-family:"Source Sans 3",ui-sans-serif,system-ui,sans-serif;font-size:16.5px;line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:80rem;margin:0 auto;padding:0 clamp(1rem,4vw,3rem) 6rem}
+  h1,h2,h3,h4{font-family:Archivo,ui-sans-serif,system-ui,sans-serif;text-wrap:balance;margin:0}
+  p{margin:0}
+  code,.part{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:.86em}
+  header.mast{border-bottom:2px solid var(--ink);padding:clamp(2.5rem,6vw,4.5rem) 0 1.5rem;display:flex;flex-direction:column;gap:1.25rem}
+  .eyebrow{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+  h1{font-size:clamp(2.4rem,6.5vw,4rem);font-weight:700;letter-spacing:-.025em;line-height:1.02}
+  .deck{font-size:clamp(1.05rem,2.2vw,1.28rem);color:var(--ink-2);max-width:64ch}
+  .facts{display:flex;flex-wrap:wrap;gap:.5rem}
+  .fact{font-family:"IBM Plex Mono",monospace;font-size:.78rem;border:1px solid var(--line-strong);border-radius:2px;padding:.3rem .6rem;color:var(--ink-2);background:var(--surface)}
+  .fact b{color:var(--accent);font-weight:500}
+  section{padding-top:3.5rem}
+  .sec-head{display:flex;align-items:baseline;gap:.9rem;border-bottom:1px solid var(--line);padding-bottom:.5rem;margin-bottom:1.5rem}
+  .sec-num{font-family:"IBM Plex Mono",monospace;font-size:.8rem;color:var(--accent);letter-spacing:.08em}
+  .sec-head h2{font-size:clamp(1.35rem,3vw,1.8rem);font-weight:600;letter-spacing:-.015em}
+  h3{font-size:1.08rem;font-weight:600;margin-bottom:.4rem}
+  .prose{display:flex;flex-direction:column;gap:1rem;max-width:70ch}
+  .prose ul,.prose ol{margin:0;padding-left:1.15rem;display:flex;flex-direction:column;gap:.45rem}
+  .prose li::marker{color:var(--line-strong)}
+  .note{color:var(--muted);font-size:.93rem}
+  .tablewrap{overflow-x:auto;border:1px solid var(--line);background:var(--surface)}
+  table{border-collapse:collapse;width:100%;min-width:34rem;font-size:.91rem}
+  th,td{text-align:left;padding:.55rem .8rem;border-bottom:1px solid var(--line);vertical-align:top}
+  thead th{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);background:var(--surface-2);border-bottom:1px solid var(--line-strong);font-weight:400}
+  tbody tr:last-child td{border-bottom:none}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;font-family:"IBM Plex Mono",monospace}
+  tfoot td{font-family:"IBM Plex Mono",monospace;font-weight:500;border-top:2px solid var(--ink);background:var(--surface-2)}
+  tr.pick td{background:var(--accent-soft)}
+  .bottomline{background:var(--surface);border:1px solid var(--line-strong);border-top:4px solid var(--accent);padding:1.4rem 1.5rem;display:flex;flex-direction:column;gap:1rem}
+  .bl-num{display:flex;flex-wrap:wrap;gap:2rem;align-items:flex-end}
+  .bl-fig{display:flex;flex-direction:column;gap:.15rem}
+  .bl-fig b{font-family:Archivo,sans-serif;font-size:2rem;font-weight:600;letter-spacing:-.02em;line-height:1;font-variant-numeric:tabular-nums}
+  .bl-fig span{font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+  .bl-fig.hero b{color:var(--accent);font-size:2.6rem}
+  .bottomline p{font-size:.98rem;color:var(--ink-2);max-width:72ch}
+  .qa{border-top:1px solid var(--line);padding:1.05rem 0;display:grid;gap:.4rem}
+  .qa:first-of-type{border-top:2px solid var(--ink)}
+  .qa .q{font-family:Archivo,sans-serif;font-weight:600;font-size:1.02rem}
+  .qa .q span{font-family:"IBM Plex Mono",monospace;font-size:.75rem;color:var(--accent);margin-right:.6rem}
+  .qa p{font-size:.95rem;color:var(--ink-2);max-width:74ch}
+  .callout{background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--accent);padding:1rem 1.15rem;max-width:66rem;display:flex;flex-direction:column;gap:.6rem}
+  .callout.crit{border-left-color:var(--crit)}
+  .callout p{font-size:.95rem;color:var(--ink-2)}
+  .pits{display:grid;gap:.75rem;grid-template-columns:repeat(auto-fit,minmax(19rem,1fr))}
+  .pit{border:1px solid var(--line);border-top:3px solid var(--crit);background:var(--surface);padding:.9rem 1rem;display:flex;flex-direction:column;gap:.35rem}
+  .pit h4{font-size:.95rem;font-weight:600}
+  .pit ul{margin:0;padding-left:1.05rem;font-size:.88rem;color:var(--ink-2);display:flex;flex-direction:column;gap:.25rem}
+  .tips{display:grid;gap:.6rem;grid-template-columns:repeat(auto-fit,minmax(20rem,1fr))}
+  .tip{background:var(--surface);border:1px solid var(--line);padding:.85rem 1rem;font-size:.92rem;color:var(--ink-2);display:flex;gap:.7rem}
+  .tip b{font-family:"IBM Plex Mono",monospace;color:var(--accent);font-weight:500;flex-shrink:0}
+  .done{display:grid;gap:.5rem;grid-template-columns:repeat(auto-fit,minmax(16rem,1fr))}
+  .done div{background:var(--ok-soft);border:1px solid var(--ok);color:var(--ok);padding:.7rem .9rem;font-size:.9rem}
+  footer{margin-top:4rem;padding-top:1.25rem;border-top:1px solid var(--line);color:var(--muted);font-size:.84rem;max-width:72ch;display:flex;flex-direction:column;gap:.5rem}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+</style>
+</head>
+<body style="margin:0">
+
+<div class="wrap">
+
+<header class="mast">
+  <div class="eyebrow">Prosjektbeskrivelse · versjon 6 · sluttdokument · september 2026</div>
+  <h1>Robothund V1</h1>
+  <p class="deck">Fire studenter i automatisering og kybernetikk ved NTNU bygger en firbeint robot på KDY0523s SpotMicro-ramme. Prinsippet er <em>ferdig mekanikk, egen kode</em>: rammen er bevist av andre, og all innsats går til kinematikk, gangart, tilstandsestimering og regulering. Dette er det siste dokumentet før maskinvaren kommer — etter fem runder mellom fire AI-assistenter og 40 rettede feil.</p>
+  <div class="facts">
+    <span class="fact">Komplett <b>4 991 kr</b></span>
+    <span class="fact">Per person <b>1 248 kr</b></span>
+    <span class="fact">Anbefalt +1 000 <b>1 497 kr/pers</b></span>
+    <span class="fact">Ferdig <b>midten av desember</b></span>
+    <span class="fact">Maksvekt <b>2,5 kg</b></span>
+  </div>
+</header>
+
+<section>
+  <div class="sec-head"><span class="sec-num">01</span><h2>Sammendrag</h2></div>
+  <div class="bottomline">
+    <div class="bl-num">
+      <div class="bl-fig"><b>4 701</b><span>basis, tjoret til labstrøm</span></div>
+      <div class="bl-fig hero"><b>4 991</b><span>komplett — NTNU-print, lånt lader</span></div>
+      <div class="bl-fig"><b>5 989</b><span>+ børsteløs på 8 ledd + BNO085</span></div>
+    </div>
+    <p>Tolv JX CLS6336HV-servoer, en ESP32, et eget kretskort og en 2S LiPo. Roboten skal gå 5 m fritt, krype over et hinder og holde kroppen vannrett på skrått underlag innen jul. Deretter oppgraderes den i to runder — persepsjon og bussservoer, så børsteløse motorer med capstan-drev.</p>
+    <p><b>Det som overskrider 5 000 kr og burde inn:</b> børsteløse servoer på de åtte tunge leddene, 768 kr. Det er den eneste oppgraderingen som angriper hovedbegrensningen — varme — og den krever ingen omprint. For utvikling holder CLS6336HV. For en demo som går i et kvarter er børsteløs et krav.</p>
+    <p><b>Neste steg er ikke et dokument til.</b> Det er å slice STL-settet, bestille servoene og printe toleransekupongen. Tre av de gjenstående spørsmålene kan bare besvares med maskinvare i hånden.</p>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><span class="sec-num">02</span><h2>Rundgangen lukkes</h2></div>
+  <div class="prose">
+    <p>Begge tilbakemeldingene på v4 — elleve funn i v5 og ni i reviewen — er gjennomgått. Tjue er tatt inn uendret: All Call-konflikten, RC-filteret, pull-ups som pads, spenningsdeleren, korrekt støtfaktor, abduksjon under vektskift, M5-akslene, to I²C-busser, INA226 som spenningsvakt, kalibreringsjigg, failsafe ved strømtap, kretskortet av kritisk vei. Tre steder er justert, og nettkilder ga fire nye funn.</p>
+  </div>
+
+  <h3 style="margin-top:1.5rem">Justert, med begrunnelse</h3>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>Punkt</th><th>Tilbakemeldingen</th><th>Justering</th></tr></thead>
+      <tbody>
+        <tr><td><b>Nødstopp</b></td><td>AC-bryter lager lysbue på 25 A DC. Lavstrøms bryter + MOSFET, ~40 kr.</td><td>Diagnosen er riktig, men en enkelt IRF4905 avgir 2,3 W kontinuerlig og trenger kjøling. <b>Ferdig anti-spark-bryter fra e-skateboard-markedet</b> (60 A, ~60 kr) er designet for nøyaktig dette og løser samtidig gnisten fra 2 200 µF med soft-start.</td></tr>
+        <tr><td><b>Kretskort og 25 A</b></td><td>Alternativ topologi: servostrøm via loddede samleskinner, kortet tar bare signal.</td><td><b>Riktig valg.</b> Da holder 1 oz kobber, 170 kr står, banebreddespørsmålet forsvinner, og kortet kan tegnes på to kvelder.</td></tr>
+        <tr><td><b>RC-filter ved 64 Hz</b></td><td>1 kΩ + 2,2 µF → 72 Hz knekk.</td><td>Greit for kHz-støy, men ved 64 Hz sampling er Nyquist 32 Hz. <b>Trigg ADS1115 på fast fase i PWM-perioden</b> — da blir ripplen en konstant offset, ikke aliasert støy. Gratis.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 style="margin-top:2rem">Nye funn fra nettkilder</h3>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>Funn</th><th>Betydning</th><th>Handling</th></tr></thead>
+      <tbody>
+        <tr class="pick"><td><b>PCA9685-oscillatoren er ikke 25 MHz.</b> Kjører typisk 26–27 MHz; biblioteket regner med 25.</td><td>Kommandert 1 500 µs blir 1 389 µs — <b>~20° skalafeil</b>. Kalibreringen absorberer det, men bytt brett og alt er ute.</td><td>Fase 2: mål PWM-frekvens med lab-oscilloskop, sett <code>setOscillatorFrequency</code>, skriv verdien i kalibreringsfila. Ti minutter.</td></tr>
+        <tr><td><b>To ESP32-SpotMicro-prosjekter finnes, begge med DS3218MG, ingen går.</b> Hugo-prosjektet er «work-in-progress, mangler hele programvaredelen».</td><td>Enda et datapunkt for servovalget. Og: det finnes ingen ferdig ESP32-firmware å laste ned.</td><td>Les Maarten Weyns IK-implementasjon. Skriv resten selv, som planlagt.</td></tr>
+        <tr><td><b>Standardservo med termisk selvbeskyttelse finnes.</b> DFRobot SER0066/67: 35,5 kg·cm, kutter ved 70 °C, publiserer kontinuerlig last (8,5 kg·cm @ 7,4 V for 25 kg-versjonen).</td><td>Bekrefter 20–33 %-forholdet stall→kontinuerlig. ~280 kr/stk.</td><td>Plan B hvis BLS-passformen ikke verifiseres. Se spørsmål 4.</td></tr>
+        <tr><td><b>Bakkereaksjonskraft i trav er 1,5–2,5× kroppsvekt per bein</b> (Cheetah-cub, J. Bionic Eng., Frontiers).</td><td>2× er riktig designfaktor for jevn gange. Snubling gir 7–22×, og der redder TPU-puten, ikke marginen.</td><td>TPU og madrass ved første gangetest er ikke forsiktighet.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><span class="sec-num">03</span><h2>Kritiske spørsmål — og svarene</h2></div>
+
+  <div class="qa"><div class="q"><span>01</span>Er SpotMicro fortsatt riktig ramme i 2026?</div><p>Ja, for dette laget. Mini Pupper 2 er et kjøpt kit til 599 $ som fjerner mekanikk-rollen; Petoi Bittle er for liten; Stanford Pupper krever Dynamixel-klasse servoer; OpenDog er 10 kg og 20 000 kr. SpotMicro har størst fellesskap, gratis STL <em>og</em> STEP, og feilene er kjente og dokumenterte. At de er kjente er selve grunnen til å velge den.</p></div>
+
+  <div class="qa"><div class="q"><span>02</span>Kommer den til å gå, eller havne i hylla som de fleste SpotMicro-bygg?</div><p>De dokumenterte årsakene til at SpotMicro-bygg stopper er servomoment (løst: 35,6 mot 20), brownout (løst: to skinner, 2 200 µF, sikring), kalibrering (løst: jigg, 1 500 µs-regel, kontraktfil) og termikk (delvis: driftssyklus, IR-termometer, BLS som oppgradering). Det som gjenstår er <b>kalender</b>. Går den ikke til jul, er årsaken tid, ikke teknikk.</p></div>
+
+  <div class="qa"><div class="q"><span>03</span>Er den termiske begrensningen en dealbreaker?</div><p>Nei for utvikling, ja for demo. 3–4 minutters gange med hvilepause er nok til å utvikle gangarter og teste regulatorer. Det er ikke nok til å gå rundt på en stand i et kvarter. Er det et mål, er børsteløs på de åtte tunge leddene et krav, ikke en oppgradering.</p></div>
+
+  <div class="qa"><div class="q"><span>04</span>Bør vi velge den termisk selvbeskyttende DFRobot-servoen i stedet?</div><p>Nei som basis, kanskje som alternativ til BLS. Samme pris som BLS-oppgraderingen. BLS gir 47,8 kg·cm og børsteløs motor og <em>angriper årsaken</em> til varmen. DFRobot gir samme moment som CLS men <em>tar konsekvensen</em> — slår seg av i stedet for å dø. En robot som legger seg ned midt i en gange fordi kneet ble 70 °C er ikke bedre enn en som ikke ble varm. Velg BLS.</p></div>
+
+  <div class="qa"><div class="q"><span>05</span>Er 12 frihetsgrader nødvendig? 8 DOF sparer 676 kr.</div><p>Nei — behold 12. Uten abduksjon kan roboten ikke flytte tyngdepunktet sideveis, og da finnes ikke kryp-gangart. Kryp er den tilgivende gangarten, den som er statisk stabil, den som går over hindre. 8 DOF gir bare trav, som er den vanskelige.</p></div>
+
+  <div class="qa"><div class="q"><span>06</span>Er PCA9685 fortsatt riktig, gitt oscillatorfeilen og I²C-jitteren?</div><p>Forsvarlig, men ikke lenger enklest. To busser fjerner jitteren, oscillatorkalibrering fjerner skalafeilen. Men ESP32 classic med direkte LEDC har ingen av problemene og ingen ekstra brikke. Kjøp PCA9685 som planlagt (60 kr), men la dødsonemålingen i fase 2 avgjøre. Er dødsonen under 1°, gå rett til LEDC.</p></div>
+
+  <div class="qa"><div class="q"><span>07</span>Hva skjer når en servo dør midt i prosjektet?</div><p>14 servoer, to reserver, 2–5 ukers leveringstid, tolv børstede motorer som kjører over kontinuerlig grense i månedsvis. To reserver er tynt. Legg to servoer til i neste bestilling, så det alltid er tre uker med reserve i skuffen.</p></div>
+
+  <div class="qa"><div class="q"><span>08</span>Er 2,5 kg-grensen reell, eller kommer den til å krype?</div><p>Reell, og sliceren avgjør det. Lander printvekten på 800 g i stedet for 600, er roboten 2,2 kg med 300 g margin — og da er <code>max_foot_reach</code> = 100 mm og BLS på de tunge leddene ikke lenger valgfrie. <b>Slice før servoene bestilles.</b> Det er den ene målingen som flytter flest beslutninger for minst arbeid, og den er fortsatt ikke gjort.</p></div>
+
+  <div class="qa"><div class="q"><span>09</span>Virker potmeter-tappingen?</div><p>Ukjent til noen åpner en servo. CLS6336HV er «digital coreless» — trolig potmeter, men DFRobot-funnet viser at magnetisk måling er på vei inn i denne prisklassen. Planen tåler begge svar: AS5600 på leddakselen er allerede spesifisert som fallback.</p></div>
+
+  <div class="qa"><div class="q"><span>10</span>Hva er den største enkeltrisikoen?</div><p>I rekkefølge: <b>kalender</b> (én kveld i uka, fire personer, en fase som glir), <b>termikk</b> (driftssyklusen), <b>kalibrering</b> (feil her ser ut som reguleringsfeil og koster to uker). Ingen av dem løses med mer penger.</p></div>
+
+  <div class="qa"><div class="q"><span>11</span>Kunne vi kjøpt en Bittle og bare gjort regulering?</div><p>Ja, for 300 $ og på en dag. Det hadde vært riktig hvis målet var RL-forskning. Målet er fire fagroller på én robot, og da er integrasjonen selve læringen.</p></div>
+
+  <div class="qa"><div class="q"><span>12</span>Hva burde vi gjort annerledes hvis vi startet på nytt?</div><p>Slice settet og mål servolommen <em>før</em> første planutkast. Halvparten av rundgangen har handlet om et vekttall ingen har målt og en servolomme ingen har åpnet i CAD.</p></div>
+</section>
+
+<section>
+  <div class="sec-head"><span class="sec-num">04</span><h2>Budsjett — fire personer</h2></div>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>Nivå</th><th>Innhold</th><th class="num">Sum</th><th class="num">Per person</th></tr></thead>
+      <tbody>
+        <tr><td>Basis</td><td>Alt i handlelista, tjoret til labstrøm</td><td class="num">4 701</td><td class="num">1 175</td></tr>
+        <tr class="pick"><td><b>Komplett</b></td><td>+ batteri, lånt lader, NTNU-print</td><td class="num"><b>4 991</b></td><td class="num"><b>1 248</b></td></tr>
+        <tr><td>Komplett, alt nytt</td><td>+ egen lader, kjøpt filament</td><td class="num">5 991</td><td class="num">1 498</td></tr>
+        <tr class="pick"><td><b>+1 000 anbefalt</b></td><td>+ 8× BLS-HV7146MG på kne og hofte pitch (768) + BNO085 (230)</td><td class="num"><b>5 989</b></td><td class="num"><b>1 497</b></td></tr>
+        <tr><td>Alternativ +1 150</td><td>+ 8× BLS + batteripakke nr. 2 (380)</td><td class="num">6 139</td><td class="num">1 535</td></tr>
+        <tr><td>Alt av det over</td><td>+ 8× BLS + BNO085 + batteripakke 2</td><td class="num">6 369</td><td class="num">1 592</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="prose" style="margin-top:1rem">
+    <p class="note"><b>Ikke tatt med, og hvorfor:</b> Raspberry Pi (vekt, penger, oppmerksomhet — runde 2) · kamera og lidar (samme) · STS3250 bussservo (bryter kompatibilitet: 3S, ny lomme — runde 2) · GC9A01-øyne (160, headeren finnes, kjøp når roboten går) · logikkanalysator (lab har oscilloskop).</p>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><span class="sec-num">05</span><h2>Handleliste — endelig</h2></div>
+
+  <h3>Første bestilling — legges i kveld</h3>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>Del</th><th class="num">Ant</th><th class="num">Sum</th><th>Kilde</th><th>Merk</th></tr></thead>
+      <tbody>
+        <tr class="pick"><td class="part">JX CLS6336HV</td><td class="num">14</td><td class="num">2 366</td><td>AliExpress</td><td><b>Kritisk vei, 2–5 uker.</b> 12 + 1 reserve + 1 offer. Butikk med mange ordrer</td></tr>
+        <tr><td class="part">ESP32 WROOM-32 devkit</td><td class="num">2</td><td class="num">140</td><td>AliExpress</td><td>Classic, ikke S3</td></tr>
+        <tr><td class="part">PCA9685</td><td class="num">1</td><td class="num">60</td><td>AliExpress</td><td>Reserve for LEDC — avgjøres i fase 2</td></tr>
+        <tr><td class="part">MPU-6050 (GY-521)</td><td class="num">1</td><td class="num">30</td><td>AliExpress</td><td></td></tr>
+        <tr><td class="part">UBEC 5 V / 5 A</td><td class="num">1</td><td class="num">120</td><td>AliExpress</td><td>Kun logikkskinnen</td></tr>
+        <tr><td class="part">Anti-spark-bryter 60 A (e-skate)</td><td class="num">1</td><td class="num">60</td><td>AliExpress</td><td>Nødstopp uten lysbue, soft-start</td></tr>
+        <tr><td class="part">XT60-par, 14 AWG silikon, 30 A blade + holder</td><td class="num">1</td><td class="num">150</td><td>Ali + Biltema</td><td></td></tr>
+        <tr><td class="part">Servoforlengere 22 AWG 300 mm</td><td class="num">12</td><td class="num">90</td><td>AliExpress</td><td>Ikke 26 AWG</td></tr>
+        <tr><td class="part">Skruesortiment M3/M4/M5</td><td class="num">1</td><td class="num">250</td><td>AliExpress</td><td>Kvalitets-M3 til bærende ledd fra Biltema</td></tr>
+        <tr><td class="part">M5 skulderbolt / 5 mm stålaksel</td><td class="num">12</td><td class="num">50</td><td>Biltema</td><td>Printet aksel er aldri rund nok</td></tr>
+        <tr><td class="part">F625zz flenslager</td><td class="num">16</td><td class="num">90</td><td>AliExpress</td><td>8 i design, 8 til hvis STL mangler dem</td></tr>
+        <tr><td class="part">Metall servohorn 25T</td><td class="num">1</td><td class="num">80</td><td>AliExpress</td><td></td></tr>
+        <tr><td class="part">2 200 µF lav-ESR, 100 nF, 12× 2,2 µF, motstander</td><td class="num">1</td><td class="num">50</td><td>AliExpress</td><td>33k/10k, 1 kΩ ×12, 330 Ω ×12</td></tr>
+        <tr><td class="part">Mikrobryter</td><td class="num">4</td><td class="num">30</td><td>AliExpress</td><td>Fotkontakt</td></tr>
+        <tr><td class="part">INA226 med <b>2 mΩ</b> shunt</td><td class="num">1</td><td class="num">70</td><td>AliExpress</td><td>Adresse 0x41. Primær spenningsvakt</td></tr>
+        <tr><td class="part">ADS1115</td><td class="num">3</td><td class="num">75</td><td>AliExpress</td><td>0x48 / 0x49 / 0x4B</td></tr>
+        <tr><td class="part">Nylon låsemutre + Loctite 243</td><td class="num">1</td><td class="num">120</td><td>Biltema</td><td></td></tr>
+        <tr><td class="part">Skumtape 3 mm</td><td class="num">1</td><td class="num">20</td><td>Biltema</td><td>IMU-montering</td></tr>
+        <tr><td class="part">TPU 0,25 kg</td><td class="num">1</td><td class="num">130</td><td>AliExpress</td><td>Poter. Kan ikke kuttes</td></tr>
+        <tr><td class="part">PETG 2 kg</td><td class="num">1</td><td class="num">400</td><td><b>NTNU → 0</b></td><td>Omega Verksted / MAKE NTNU</td></tr>
+        <tr><td class="part">Kretskort, 1 oz, signal/logikk</td><td class="num">1</td><td class="num">170</td><td>JLCPCB</td><td>Bestilles i fase 1</td></tr>
+        <tr><td class="part">Slark</td><td class="num">—</td><td class="num">150</td><td>—</td><td></td></tr>
+      </tbody>
+      <tfoot><tr><td colspan="2">Sum basis</td><td class="num">4 701 kr</td><td colspan="2"></td></tr></tfoot>
+    </table>
+  </div>
+
+  <h3 style="margin-top:2rem">Fase 3 — batteri</h3>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>Del</th><th class="num">Sum</th><th>Kilde</th></tr></thead>
+      <tbody>
+        <tr><td class="part">2S 5000 mAh LiPo, 30–50C</td><td class="num">380</td><td>Norsk RC-butikk — <b>ikke AliExpress</b></td></tr>
+        <tr><td class="part">Balanselader m/PSU</td><td class="num">600 → <b>0 lånt</b></td><td>Norsk butikk / RC-miljøet</td></tr>
+        <tr><td class="part">LiPo-brannpose</td><td class="num">100</td><td>Norsk butikk</td></tr>
+        <tr><td class="part">2S spenningsvakt m/summer</td><td class="num">30</td><td>AliExpress</td></tr>
+        <tr><td class="part">Ekstra 14 AWG + XT60, sikringsholder + 30 A reserve</td><td class="num">180</td><td>Biltema</td></tr>
+      </tbody>
+      <tfoot><tr><td>Sum</td><td class="num">1 290 / 690 lånt</td><td></td></tr></tfoot>
+    </table>
+  </div>
+
+  <h3 style="margin-top:2rem">+1 000-nivået — bestill sammen med batteriet</h3>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>Del</th><th class="num">Ant</th><th class="num">Sum</th><th>Merk</th></tr></thead>
+      <tbody>
+        <tr class="pick"><td class="part">JX BLS-HV7146MG</td><td class="num">8</td><td class="num">2 120</td><td>Kne + hofte pitch. <b>Differanse 768</b> når 8 CLS blir reserver</td></tr>
+        <tr><td class="part">BNO085</td><td class="num">1</td><td class="num">230</td><td>Adresse 0x4A, fasit for eget filter</td></tr>
+        <tr><td class="part">CLS6336HV ekstra reserve</td><td class="num">2</td><td class="num">338</td><td>Se spørsmål 7. Valgfritt</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="callout crit" style="margin-top:1rem">
+    <p><b>Sjekk før BLS bestilles:</b> monteringsørenes høyde relativt til utgangsakselen er fortsatt ikke verifisert. Den avgjør om servoen er drop-in — shimmen i bunnen hjelper bare hvis servoen bærer på bunnen, og standardservoer bærer på ørene. Mål det på en fysisk BLS eller fra et datablad med tegning.</p>
+  </div>
+  <p class="note" style="margin-top:1rem"><b>Utsatt — kjøpes når roboten går:</b> GC9A01 ×2 (160) · batteripakke 2 (380) · TCA9548A ×2 (30) · AS5600 ×12 (330) · Raspberry Pi 5 + kamera (~1 400, autorisert forhandler) · RPLidar C1 (~1 200).</p>
+</section>
+
+<section>
+  <div class="sec-head"><span class="sec-num">06</span><h2>Tidsplan — fire personer, én kveld i uka</h2></div>
+  <div class="prose" style="margin-bottom:1rem">
+    <p>Roller: <b>Mekanikk</b> (SolidWorks, print, montering, kalibrering, vekt) · <b>Embedded</b> (kretskort, PWM, sanntid, IMU, failsafe) · <b>Regulering</b> (IK, gangart, filter, Simulink) · <b>Vert</b> (simulator, protokoll, telemetri, <code>ACTION</code>, forberede Pi/ROS 2).</p>
+  </div>
+  <div class="tablewrap">
+    <table style="min-width:60rem">
+      <thead><tr><th>Uke</th><th>Fase</th><th>Mekanikk</th><th>Embedded</th><th>Regulering</th><th>Vert</th><th>Milepæl</th></tr></thead>
+      <tbody>
+        <tr class="pick"><td><b>0</b></td><td>Bestill</td><td><b>Slice hele settet — printvekt.</b> Mål servolommen. Last ned STL + STEP</td><td>Sjekk lab-PSU, oscilloskop, breadboard</td><td>—</td><td>Opprett repo, tre kontraktfiler + failsafe-tabell</td><td><b>Servoer bestilt samme kveld</b></td></tr>
+        <tr><td><b>1–2</b></td><td>Vent</td><td>Toleransekupong printet og målt. SolidWorks-samling med mates — <b>en hel dag</b></td><td>KiCad-skjema, to I²C-busser. Bestill JLCPCB</td><td>URDF via sw2urdf. IK for ett bein mot toolbox</td><td>Simulator som snakker protokollen</td><td>Kupong målt, kort bestilt, IK verifisert</td></tr>
+        <tr><td><b>3–4</b></td><td>Vent</td><td>Ett bein i PLA som passformtest. Kalibreringsjigg</td><td>LEDC + PCA9685 på breadboard, failsafe, watchdog</td><td>Momentprofil gjennom fotbanen. Gangart i Simulink</td><td><code>ACTION</code>-ordforråd. Logging</td><td>IK tegner fotbane. <b>Momentkrav målt</b></td></tr>
+        <tr class="pick"><td><b>5</b></td><td>Ett bein</td><td>Tre servoer. <b>Sentrer på 1 500 µs før horn.</b> Åpne offerservoen</td><td><b>Mål: strøm, dødsone, PCA9685-frekvens, 200 Hz.</b> Kalibrer oscillator</td><td>IK mot linjal</td><td>Live telemetri</td><td>Fot &lt; 5 mm. <b>Driver avgjort</b></td></tr>
+        <tr><td><b>6–7</b></td><td>Hele</td><td>Print resten i PETG. Monter. <b>Kalibrer 12 ledd med jigg — hel kveld</b></td><td>Kretskortet kommer. Test, revider</td><td>Statisk positur på labstrøm</td><td>Positurkommandoer</td><td>Står, senker, hever, skifter vekt</td></tr>
+        <tr><td><b>8</b></td><td>Batteri</td><td>Batteri, sikring, anti-spark, vakt inn. Vei roboten</td><td>Firmware-cutoff, INA226-vakt</td><td>Første trav i oppheng</td><td>—</td><td><b>2 m i oppheng, 3× på rad</b></td></tr>
+        <tr class="pick"><td><b>9–10</b></td><td>Fritt</td><td>TPU-poter, mikrobrytere</td><td>Temperaturlogg per gangart</td><td>Kryp-gangart. Fotkontakt</td><td>Gamepad</td><td><b>5 m uten ledning.</b> Første video</td></tr>
+        <tr><td><b>11–14</b></td><td>Regulering</td><td>Vektlogg, slitasje</td><td>Potmeter-tapping på 4 ledd</td><td>Eget filter mot BNO085. Kroppsstabilisering</td><td>Pi-forberedelse</td><td>Kryp over 15 mm. ±5° på 10° skråplan</td></tr>
+        <tr><td><b>15</b></td><td>Ferdig</td><td colspan="4"></td><td><b>Alle seks ferdigkriterier. V1 lukkes.</b></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="callout" style="margin-top:1.25rem">
+    <p><b>Kritisk vei:</b> servolevering (uke 0–4) → ett bein (uke 5) → kalibrering (uke 6–7) → gange (uke 8–10). Alt annet kan gli uten å flytte sluttdato. <b>Sw2urdf-dagen og kalibreringskvelden er de to postene som erfaringsmessig tar dobbelt.</b> Legg dem på helg. Realistisk ferdig V1: midten av desember hvis servoene bestilles denne uka.</p>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><span class="sec-num">07</span><h2>Fallgruver — de som faktisk stopper prosjekter</h2></div>
+  <div class="pits">
+    <div class="pit"><h4>Mekanikk</h4><ul>
+      <li>Feil STL-variant. Bekreft CLS-varianten før bestilling.</li>
+      <li>Toleransekupongen hoppes over → hele settet printes to ganger.</li>
+      <li>Motlager ikke konsentrisk med servoaksen → stiv bevegelse, varme servoer i ro. Test: leddet svinger fritt under egen vekt uten servo.</li>
+      <li>Horn montert før 1 500 µs-sentrering → tapt utslag i én retning.</li>
+      <li>Kabler klemt i leddene. Test bevegelsesområdet <em>med</em> kabel.</li>
+      <li>Vektspiral. Vei ved hver milepæl.</li>
+    </ul></div>
+    <div class="pit"><h4>Elektronikk</h4><ul>
+      <li>Brownout som ser ut som kodefeil. To skinner, felles jord, 2 200 µF, 14 AWG.</li>
+      <li>PCA9685-oscillatoren tas for 25 MHz → 10–20° skalafeil. Mål og kalibrer.</li>
+      <li>INA226-standardmodul (0,1 Ω) måler ingenting. 2 mΩ.</li>
+      <li>Alle I²C-enheter på én buss → servojitter som ser ut som reguleringsfeil.</li>
+      <li>Pull-ups på både kort og moduler → for lavt. Mål først.</li>
+      <li>AC-bryter som nødstopp på 25 A DC → lysbue, sveiset kontakt.</li>
+    </ul></div>
+    <div class="pit"><h4>Programvare og prosess</h4><ul>
+      <li>Ingen failsafe → «trav framover» som siste ordre når WiFi faller.</li>
+      <li>Strømmen kuttes mens roboten står → faller på printede bein. Alltid sikker positur før av.</li>
+      <li>Kalibrering på øyemål → feil i tabellen letes etter i gangartgeneratoren i to uker.</li>
+      <li>Sw2urdf antatt automatisk → en time blir en dag.</li>
+      <li>Termisk nedtrapping midt i en testøkt → «regulatoren ble dårligere». Logg temperatur.</li>
+    </ul></div>
+    <div class="pit"><h4>Laget</h4><ul>
+      <li>Ingen fast ukekveld. Den eneste fallgruva ingen teknisk løsning fikser.</li>
+      <li>Fire bein før ett virker. Samme designfeil fire ganger.</li>
+      <li>Dokumentet itereres videre i stedet for at servoene bestilles. <b>Bestill i kveld.</b></li>
+    </ul></div>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><span class="sec-num">08</span><h2>Tips — det som sparer tid</h2></div>
+  <div class="tips">
+    <div class="tip"><b>01</b><span><b>Slice settet i kveld.</b> Halvtimes arbeid. Avgjør servogaffelen, vektmarginen og <code>max_foot_reach</code> på én gang.</span></div>
+    <div class="tip"><b>02</b><span><b>Bestill servoene før alt annet er ferdig planlagt.</b> Leveringstiden er kritisk vei. Resten kan bestilles neste uke.</span></div>
+    <div class="tip"><b>03</b><span><b>Kalibrer i lav knebøy.</b> Der er kneet nesten ubelastet, og roboten kan stå på ubestemt tid uten å bli varm.</span></div>
+    <div class="tip"><b>04</b><span><b>Trigg ADS1115 på fast fase i PWM-perioden.</b> PWM-ripple blir en konstant i stedet for støy.</span></div>
+    <div class="tip"><b>05</b><span><b>Egen implementasjon, kjøpt fasit, sammenlign.</b> IK mot toolboxen. Filter mot BNO085. Samme mønster overalt.</span></div>
+    <div class="tip"><b>06</b><span><b>Første frie gange over en madrass.</b> Snubling gir 7–22× last. Puten redder servoen, madrassen redder rammen.</span></div>
+    <div class="tip"><b>07</b><span><b>Omega Verksted til serieprint, P1P til iterasjon.</b> Parallell printkapasitet er en uke spart.</span></div>
+    <div class="tip"><b>08</b><span><b>Én person per kontraktfil.</b> Endrer du en fil du ikke eier, si fra først.</span></div>
+    <div class="tip"><b>09</b><span><b>Vei, logg, temperaturmål ved hver milepæl.</b> Det er ferdigkriterium 5, og dataene runde 2 dimensjoneres fra.</span></div>
+    <div class="tip"><b>10</b><span><b>Lad LiPo til 4,15 V/celle.</b> Fem prosent mindre kapasitet, vesentlig lengre levetid, margin mot 8,4 V.</span></div>
+    <div class="tip"><b>11</b><span><b>Print en stativkrok i kroppen.</b> Roboten henger under all testing, og strømtap-fallgruven forsvinner.</span></div>
+    <div class="tip"><b>12</b><span><b>Sjekk spenning først, kode sist.</b> Ni av ti «kodefeil» i servoroboter er strømforsyning.</span></div>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><span class="sec-num">09</span><h2>Oppgraderinger på sikt</h2></div>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>Runde</th><th>Innhold</th><th class="num">Anslag</th><th>Forutsetter</th></tr></thead>
+      <tbody>
+        <tr><td><b>2 — persepsjon</b><br><span class="note">vår 2027</span></td><td>Raspberry Pi 5 + kamera · RPLidar C1 · ROS 2 med micro-ROS · egen beingeometri fra STEP · GC9A01-øyne · LLM i skyen over <code>ACTION</code></td><td class="num">3 000–7 000</td><td>BLS på de tunge leddene — CLS har null margin ved 3 kg. STS3250 er alternativet hvis brakettene uansett tegnes om, men krever 3S.</td></tr>
+        <tr><td><b>3 — dynamikk</b><br><span class="note">2027–28</span></td><td>Capstan-drev med 6010 KV130 børsteløse motorer, B-G431B-ESC1 + SimpleFOC, Teensy 4.1 over CAN. Bakdrivbare ledd, null slark, momenttransparens. 7 kg-robot som arver all kode.</td><td class="num">~17 400</td><td>Egen plan finnes. Designarbeidet koster null og kan starte når som helst.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="note" style="margin-top:.8rem"><b>Designet inn nå for å gjøre dette billig senere:</b> standard servolomme (BLS drop-in) · UART-header (Pi) · SPI-header (øyne) · I²C 0x4A ledig (BNO085) · mux-adresser satt (AS5600) · <code>ACTION</code>-ordforråd (LLM) · STEP-filer og SolidWorks-samling (egen geometri) · 500 g vektmargin (persepsjon).</p>
+</section>
+
+<section>
+  <div class="sec-head"><span class="sec-num">10</span><h2>Når er V1 ferdig?</h2></div>
+  <div class="done">
+    <div>1 · Går 5 m rett fram uten ledning, tre ganger på rad</div>
+    <div>2 · Kryp-gangart over 15 mm hinder uten å falle</div>
+    <div>3 · IMU-stabilisering holder kroppen ±5° når underlaget vippes 10°</div>
+    <div>4 · Failsafe testet: kutt WiFi midt i gange → sikker positur</div>
+    <div>5 · Repoet har kalibrerings-, toleranse-, vekt-, strøm- og temperaturlogg</div>
+    <div>6 · Servohus under 60 °C etter fem minutters sammenhengende gange</div>
+  </div>
+</section>
+
+<footer>
+  <p>Versjon 6, september 2026. Sluttdokument etter fem runder mellom fire AI-assistenter. 40 feil rettet underveis — full feillogg i <code>robothund-kontekst-v4.md</code>. Momentberegninger forutsetter 2,5 kg, 120 mm arm som konservativt verstetilfelle, 2× dynamisk faktor for jevn gange. Priser er anslag inkl. norsk mva og svinger 20–30 % på AliExpress.</p>
+  <p>Kilder: mike4192/spotMicro #15 · hugogarrix/SpotMicroESP32-Hugo · Adafruit-forum «PCA9685 Oscillator not very accurate» · DFRobot SER0066/SER0067 · espressif/arduino-esp32 #440 · Cheetah-cub, J. Bionic Eng. 2014, Frontiers 2014 · servodatabase.com · robotis.us · thingiverse thing:3445283 og thing:3761340 · spotmicroai.readthedocs.io · raspberrypi.com/resellers · tollkalkulator.no.</p>
+</footer>
+
+</div>
+
+</body>
+</html>
